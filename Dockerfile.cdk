@@ -10,12 +10,14 @@ ENV NODE_ENV ${NODE}
 # copy package info early to install npms and delete npm command
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN apk -U add curl jq bash nodejs nodejs-npm && \
+RUN apk -U add curl jq bash nodejs nodejs-npm python3 py3-pip && \
+  pip3 install awscli netaddr && \
   npm install && apk del --purge nodejs-npm && \
   rm -rvf /var/cache/* /root/.npm /tmp/*
 
 # copy the code
 COPY . .
+RUN mv /usr/src/app/startup-cdk.sh /usr/src/app/startup.sh
 HEALTHCHECK --interval=10s --timeout=3s \
   CMD curl -f -s http://localhost:3000/health/ || exit 1
 EXPOSE 3000
